@@ -1,0 +1,17 @@
+{
+  "name": "@knowledge-atlas/shared",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Shared TypeScript types and utilities for Knowledge Atlas.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "echo \"No tests yet for shared package\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0"
+  }
+}

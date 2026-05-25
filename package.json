@@ -1,0 +1,30 @@
+{
+  "name": "knowledge-atlas",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A full-stack TypeScript learning project for Knowledge Graphs, Vector Databases, and RAG.",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces",
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "typecheck": "npm run typecheck --workspaces"
+  },
+  "keywords": [
+    "knowledge-graph",
+    "vector-database",
+    "rag",
+    "typescript",
+    "full-stack"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": "24.16.0",
+    "npm": "11.13.0"
+  }
+}
