@@ -1,4 +1,7 @@
-export default function HomePage() {
+import { getApiHealth } from "@/lib/api";
+
+export default async function HomePage() {
+  const apiHealth = await getApiHealth();
   return (
     <main className="min-h-screen bg-slate-50 px-6 py-10 text-slate-950">
       <section className="mx-auto max-w-5xl">
@@ -15,6 +18,11 @@ export default function HomePage() {
           ingest documents, extract concepts, search by semantic meaning, and
           answer questions using retrieved evidence.
         </p>
+
+        <div className="mt-8 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+          Backend status: {apiHealth.ok ? "online" : "offline"} (
+          {apiHealth.service})
+        </div>
 
         <div className="mt-10 grid gap-4 md:grid-cols-3">
           <article className="rounded-lg border border-slate-200 bg-white p-5">
