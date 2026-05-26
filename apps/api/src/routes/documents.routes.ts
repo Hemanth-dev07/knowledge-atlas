@@ -4,8 +4,8 @@ import { z } from "zod";
 import { chunkText } from "../services/chunking.service.js";
 
 const createDocumentSchema = z.object({
-  title: z.string().min(1),
-  text: z.string().min(20),
+  title: z.string().min(1, "Title is required"),
+  text: z.string().min(20, "Document text must contain at least 20 characters"),
 });
 
 export async function documentRoutes(app: FastifyInstance) {
