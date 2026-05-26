@@ -1,0 +1,4 @@
+# .prettierignore
+
+.github/workflows/*.yml
+.github/workflows/*.yaml
