@@ -3,6 +3,7 @@ import fastify from "fastify";
 import { env } from "./config/env.js";
 import { healthRoutes } from "./routes/health.routes.js";
 import { rootRoutes } from "./routes/root.routes.js";
+import { documentRoutes } from "./routes/documents.routes.js";
 
 const app = fastify({
   logger: true,
@@ -15,6 +16,7 @@ await app.register(cors, {
 // Routes are registered with fastify here
 await app.register(rootRoutes);
 await app.register(healthRoutes);
+await app.register(documentRoutes);
 
 await app.listen({
   port: env.apiPort,
