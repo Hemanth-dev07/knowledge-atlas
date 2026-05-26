@@ -1,9 +1,13 @@
 import type { ChunkRecord, DocumentRecord } from "@knowledge-atlas/shared";
 
-const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
+function getApiBaseUrl() {
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
-if (!apiBaseUrl) {
-  throw new Error("NEXT_PUBLIC_API_URL is not configured");
+  if (!apiBaseUrl) {
+    throw new Error("NEXT_PUBLIC_API_URL is not configured");
+  }
+
+  return apiBaseUrl;
 }
 
 export type ApiHealthResponse = {
@@ -12,6 +16,7 @@ export type ApiHealthResponse = {
 };
 
 export async function getApiHealth(): Promise<ApiHealthResponse> {
+  const apiBaseUrl = getApiBaseUrl();
   const response = await fetch(`${apiBaseUrl}/health`, {
     cache: "no-store",
   });
@@ -44,6 +49,7 @@ type ApiErrorResponse = {
 export async function createDocument(
   input: CreateDocumentInput,
 ): Promise<CreateDocumentResponse> {
+  const apiBaseUrl = getApiBaseUrl();
   const response = await fetch(`${apiBaseUrl}/documents`, {
     method: "POST",
     headers: {
