@@ -1,3 +1,4 @@
+import type { ChunkRecord, DocumentRecord } from "@knowledge-atlas/shared";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { chunkText } from "../services/chunking.service.js";
@@ -18,12 +19,22 @@ export async function documentRoutes(app: FastifyInstance) {
       });
     }
 
-    const chunks = chunkText(parsed.data.text);
+    const document: DocumentRecord = {
+      id: crypto.randomUUID(),
+      title: parsed.data.title,
+      sourceType: "paste",
+      createdAt: new Date().toISOString(),
+    };
+
+    const chunks: ChunkRecord[] = chunkText(parsed.data.text).map((chunk) => ({
+      id: crypto.randomUUID(),
+      documentId: document.id,
+      text: chunk.text,
+      index: chunk.index,
+    }));
 
     return reply.status(201).send({
-      document: {
-        title: parsed.data.title,
-      },
+      document,
       chunks,
     });
   });
