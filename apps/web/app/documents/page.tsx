@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import type { CreateDocumentResponse } from "@/lib/api";
-import { createDocument } from "@/lib/api";
+import { useEffect, useState } from "react";
+import type { CreateDocumentResponse, ListDocumentsResponse } from "@/lib/api";
+import { createDocument, listDocuments } from "@/lib/api";
 
 export default function DocumentsPage() {
   const [title, setTitle] = useState("");
@@ -10,6 +10,29 @@ export default function DocumentsPage() {
   const [result, setResult] = useState<CreateDocumentResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [documents, setDocuments] = useState<
+    ListDocumentsResponse["documents"]
+  >([]);
+  const [isLoadingDocuments, setIsLoadingDocuments] = useState(true);
+
+  useEffect(() => {
+    async function loadDocuments() {
+      try {
+        const response = await listDocuments();
+        setDocuments(response.documents);
+      } catch (caughtError) {
+        setError(
+          caughtError instanceof Error
+            ? caughtError.message
+            : "Failed to load documents",
+        );
+      } finally {
+        setIsLoadingDocuments(false);
+      }
+    }
+
+    void loadDocuments();
+  }, []);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -25,6 +48,10 @@ export default function DocumentsPage() {
       });
 
       setResult(response);
+      setDocuments((currentDocuments) => [
+        response.document,
+        ...currentDocuments,
+      ]);
     } catch (caughtError) {
       setError(
         caughtError instanceof Error
@@ -51,6 +78,32 @@ export default function DocumentsPage() {
           backend will validate the input, split it into chunks, and return the
           generated document and chunk records.
         </p>
+
+        <section className="mt-10 rounded-lg border border-slate-200 bg-white p-5">
+          <h2 className="text-xl font-semibold">Current documents</h2>
+
+          {isLoadingDocuments ? (
+            <p className="mt-3 text-sm text-slate-600">Loading documents...</p>
+          ) : documents.length === 0 ? (
+            <p className="mt-3 text-sm text-slate-600">
+              No documents have been added during this server session.
+            </p>
+          ) : (
+            <ul className="mt-4 grid gap-3">
+              {documents.map((document) => (
+                <li
+                  key={document.id}
+                  className="rounded-lg border border-slate-200 bg-slate-50 p-4"
+                >
+                  <p className="font-medium">{document.title}</p>
+                  <p className="mt-1 text-sm text-slate-600">
+                    Added on {new Date(document.createdAt).toLocaleString()}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
 
         <form onSubmit={handleSubmit} className="mt-10 grid gap-5">
           <label className="grid gap-2">

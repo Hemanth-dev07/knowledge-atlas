@@ -15,18 +15,9 @@ export type ApiHealthResponse = {
   service: string;
 };
 
-export async function getApiHealth(): Promise<ApiHealthResponse> {
-  const apiBaseUrl = getApiBaseUrl();
-  const response = await fetch(`${apiBaseUrl}/health`, {
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error(`API health check failed with status ${response.status}`);
-  }
-
-  return response.json();
-}
+export type ListDocumentsResponse = {
+  documents: DocumentRecord[];
+};
 
 export type CreateDocumentInput = {
   title: string;
@@ -45,6 +36,33 @@ type ApiErrorResponse = {
     formErrors?: string[];
   };
 };
+
+export async function getApiHealth(): Promise<ApiHealthResponse> {
+  const apiBaseUrl = getApiBaseUrl();
+  const response = await fetch(`${apiBaseUrl}/health`, {
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(`API health check failed with status ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export async function listDocuments(): Promise<ListDocumentsResponse> {
+  const apiBaseUrl = getApiBaseUrl();
+
+  const response = await fetch(`${apiBaseUrl}/documents`, {
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(`List documents failed with status ${response.status}`);
+  }
+
+  return response.json();
+}
 
 export async function createDocument(
   input: CreateDocumentInput,
