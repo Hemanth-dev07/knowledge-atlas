@@ -20,3 +20,7 @@ export function listDocuments() {
 export function getDocument(documentId: string) {
   return documents.get(documentId) ?? null;
 }
+
+export function clearDocuments() {
+  documents.clear();
+}
