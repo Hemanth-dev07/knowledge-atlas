@@ -3,6 +3,7 @@ import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { chunkText } from "../services/chunking.service.js";
 import {
+  getDocument,
   listDocuments,
   saveDocument,
 } from "../services/document-store.service.js";
@@ -17,6 +18,31 @@ export async function documentRoutes(app: FastifyInstance) {
     return {
       documents: listDocuments(),
     };
+  });
+
+  app.get("/documents/:documentId", async (request, reply) => {
+    const paramsSchema = z.object({
+      documentId: z.string().uuid("Document ID must be a valid UUID"),
+    });
+
+    const parsed = paramsSchema.safeParse(request.params);
+
+    if (!parsed.success) {
+      return reply.status(400).send({
+        error: "Invalid document ID",
+        details: parsed.error.flatten(),
+      });
+    }
+
+    const record = getDocument(parsed.data.documentId);
+
+    if (!record) {
+      return reply.status(404).send({
+        error: "Document not found",
+      });
+    }
+
+    return record;
   });
 
   app.post("/documents", async (request, reply) => {
