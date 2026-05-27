@@ -2,6 +2,10 @@ import type { ChunkRecord, DocumentRecord } from "@knowledge-atlas/shared";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { chunkText } from "../services/chunking.service.js";
+import {
+  listDocuments,
+  saveDocument,
+} from "../services/document-store.service.js";
 
 const createDocumentSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -9,6 +13,12 @@ const createDocumentSchema = z.object({
 });
 
 export async function documentRoutes(app: FastifyInstance) {
+  app.get("/documents", async () => {
+    return {
+      documents: listDocuments(),
+    };
+  });
+
   app.post("/documents", async (request, reply) => {
     const parsed = createDocumentSchema.safeParse(request.body);
 
@@ -33,9 +43,11 @@ export async function documentRoutes(app: FastifyInstance) {
       index: chunk.index,
     }));
 
-    return reply.status(201).send({
+    const saved = saveDocument({
       document,
       chunks,
     });
+
+    return reply.status(201).send(saved);
   });
 }
