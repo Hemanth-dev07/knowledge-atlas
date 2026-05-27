@@ -29,6 +29,11 @@ export type CreateDocumentResponse = {
   chunks: ChunkRecord[];
 };
 
+export type GetDocumentResponse = {
+  document: DocumentRecord;
+  chunks: ChunkRecord[];
+};
+
 type ApiErrorResponse = {
   error: string;
   details?: {
@@ -59,6 +64,22 @@ export async function listDocuments(): Promise<ListDocumentsResponse> {
 
   if (!response.ok) {
     throw new Error(`List documents failed with status ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export async function getDocument(
+  documentId: string,
+): Promise<GetDocumentResponse> {
+  const apiBaseUrl = getApiBaseUrl();
+
+  const response = await fetch(`${apiBaseUrl}/documents/${documentId}`, {
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Get document failed with status ${response.status}`);
   }
 
   return response.json();

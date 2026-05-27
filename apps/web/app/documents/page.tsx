@@ -1,8 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { CreateDocumentResponse, ListDocumentsResponse } from "@/lib/api";
-import { createDocument, listDocuments } from "@/lib/api";
+import type {
+  CreateDocumentResponse,
+  GetDocumentResponse,
+  ListDocumentsResponse,
+} from "@/lib/api";
+import { createDocument, getDocument, listDocuments } from "@/lib/api";
 
 export default function DocumentsPage() {
   const [title, setTitle] = useState("");
@@ -14,6 +18,10 @@ export default function DocumentsPage() {
     ListDocumentsResponse["documents"]
   >([]);
   const [isLoadingDocuments, setIsLoadingDocuments] = useState(true);
+  const [selectedDocument, setSelectedDocument] =
+    useState<GetDocumentResponse | null>(null);
+  const [isLoadingSelectedDocument, setIsLoadingSelectedDocument] =
+    useState(false);
 
   useEffect(() => {
     async function loadDocuments() {
@@ -34,6 +42,24 @@ export default function DocumentsPage() {
     void loadDocuments();
   }, []);
 
+  async function handleSelectDocument(documentId: string) {
+    setError(null);
+    setIsLoadingSelectedDocument(true);
+
+    try {
+      const response = await getDocument(documentId);
+      setSelectedDocument(response);
+    } catch (caughtError) {
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Failed to load document",
+      );
+    } finally {
+      setIsLoadingSelectedDocument(false);
+    }
+  }
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -48,6 +74,7 @@ export default function DocumentsPage() {
       });
 
       setResult(response);
+      setSelectedDocument(response);
       setDocuments((currentDocuments) => [
         response.document,
         ...currentDocuments,
@@ -91,19 +118,58 @@ export default function DocumentsPage() {
           ) : (
             <ul className="mt-4 grid gap-3">
               {documents.map((document) => (
-                <li
-                  key={document.id}
-                  className="rounded-lg border border-slate-200 bg-slate-50 p-4"
-                >
-                  <p className="font-medium">{document.title}</p>
-                  <p className="mt-1 text-sm text-slate-600">
-                    Added on {new Date(document.createdAt).toLocaleString()}
-                  </p>
+                <li key={document.id}>
+                  <button
+                    type="button"
+                    onClick={() => void handleSelectDocument(document.id)}
+                    className={`w-full rounded-lg border p-4 text-left transition hover:border-blue-300 hover:bg-blue-50 ${
+                      selectedDocument?.document.id === document.id
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-slate-200 bg-slate-50"
+                    }`}
+                  >
+                    <p className="font-medium">{document.title}</p>
+                    <p className="mt-1 text-sm text-slate-600">
+                      Added on {new Date(document.createdAt).toLocaleString()}
+                    </p>
+                  </button>
                 </li>
               ))}
             </ul>
           )}
         </section>
+        {isLoadingSelectedDocument ? (
+          <section className="mt-6 rounded-lg border border-slate-200 bg-white p-5">
+            <p className="text-sm text-slate-600">
+              Loading selected document...
+            </p>
+          </section>
+        ) : selectedDocument ? (
+          <section className="mt-6 rounded-lg border border-slate-200 bg-white p-5">
+            <h2 className="text-xl font-semibold">
+              {selectedDocument.document.title}
+            </h2>
+            <p className="mt-2 text-sm text-slate-600">
+              Document ID: {selectedDocument.document.id}
+            </p>
+
+            <div className="mt-5 grid gap-4">
+              {selectedDocument.chunks.map((chunk) => (
+                <article
+                  key={chunk.id}
+                  className="rounded-lg border border-slate-200 bg-slate-50 p-4"
+                >
+                  <p className="text-sm font-medium text-slate-700">
+                    Chunk {chunk.index + 1}
+                  </p>
+                  <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-700">
+                    {chunk.text}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         <form onSubmit={handleSubmit} className="mt-10 grid gap-5">
           <label className="grid gap-2">
