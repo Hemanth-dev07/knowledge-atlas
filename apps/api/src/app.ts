@@ -3,9 +3,12 @@ import fastify from "fastify";
 import { documentRoutes } from "./routes/documents.routes.js";
 import { healthRoutes } from "./routes/health.routes.js";
 import { rootRoutes } from "./routes/root.routes.js";
+import { databaseDocumentStore } from "./services/database-document-store.service.js";
+import type { DocumentStore } from "./services/document-store.service.js";
 
 type BuildAppOptions = {
   logger?: boolean;
+  documentStore?: DocumentStore;
 };
 
 export async function buildApp(options: BuildAppOptions = {}) {
@@ -18,9 +21,13 @@ export async function buildApp(options: BuildAppOptions = {}) {
     methods: ["GET", "HEAD", "POST", "DELETE"],
   });
 
+  const documentStore = options.documentStore ?? databaseDocumentStore;
+
   await app.register(rootRoutes);
   await app.register(healthRoutes);
-  await app.register(documentRoutes);
+  await app.register(documentRoutes, {
+    documentStore,
+  });
 
   return app;
 }

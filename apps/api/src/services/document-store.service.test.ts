@@ -1,10 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
-  clearDocuments,
-  deleteDocument,
-  getDocument,
-  listDocuments,
-  saveDocument,
+  createInMemoryDocumentStore,
+  type DocumentStore,
 } from "./document-store.service.js";
 
 const document = {
@@ -24,51 +21,56 @@ const chunks = [
 ];
 
 describe("document store", () => {
+  let documentStore: DocumentStore;
   beforeEach(() => {
-    clearDocuments();
+    documentStore = createInMemoryDocumentStore();
   });
 
-  it("starts with no documents", () => {
-    expect(listDocuments()).toEqual([]);
+  it("starts with no documents", async () => {
+    await expect(documentStore.listDocuments()).resolves.toEqual([]);
   });
 
-  it("saves and lists document metadata", () => {
-    saveDocument({
+  it("saves and lists document metadata", async () => {
+    await documentStore.saveDocument({
       document,
       chunks,
     });
 
-    expect(listDocuments()).toEqual([document]);
+    await expect(documentStore.listDocuments()).resolves.toEqual([document]);
   });
 
-  it("gets a stored document with chunks by ID", () => {
-    saveDocument({
+  it("gets a stored document with chunks by ID", async () => {
+    await documentStore.saveDocument({
       document,
       chunks,
     });
 
-    expect(getDocument(document.id)).toEqual({
+    await expect(documentStore.getDocument(document.id)).resolves.toEqual({
       document,
       chunks,
     });
   });
 
-  it("returns null when a document does not exist", () => {
-    expect(getDocument("33333333-3333-4333-8333-333333333333")).toBeNull();
+  it("returns null when a document does not exist", async () => {
+    await expect(
+      documentStore.getDocument("33333333-3333-4333-8333-333333333333"),
+    ).resolves.toBeNull();
   });
 
-  it("deletes a stored document", () => {
-    saveDocument({
+  it("deletes a stored document", async () => {
+    await documentStore.saveDocument({
       document,
       chunks,
     });
 
-    expect(deleteDocument(document.id)).toBe(true);
-    expect(getDocument(document.id)).toBeNull();
-    expect(listDocuments()).toEqual([]);
+    await expect(documentStore.deleteDocument(document.id)).resolves.toBe(true);
+    await expect(documentStore.getDocument(document.id)).resolves.toBeNull();
+    await expect(documentStore.listDocuments()).resolves.toEqual([]);
   });
 
-  it("returns false when deleting a missing document", () => {
-    expect(deleteDocument("44444444-4444-4444-8444-444444444444")).toBe(false);
+  it("returns false when deleting a missing document", async () => {
+    await expect(
+      documentStore.deleteDocument("44444444-4444-4444-8444-444444444444"),
+    ).resolves.toBe(false);
   });
 });

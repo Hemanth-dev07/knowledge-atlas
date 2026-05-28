@@ -2,22 +2,24 @@ import type { ChunkRecord, DocumentRecord } from "@knowledge-atlas/shared";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { chunkText } from "../services/chunking.service.js";
-import {
-  deleteDocument,
-  getDocument,
-  listDocuments,
-  saveDocument,
-} from "../services/document-store.service.js";
+import type { DocumentStore } from "../services/document-store.service.js";
 
 const createDocumentSchema = z.object({
   title: z.string().min(1, "Title is required"),
   text: z.string().min(20, "Document text must contain at least 20 characters"),
 });
 
-export async function documentRoutes(app: FastifyInstance) {
+type DocumentRoutesOptions = {
+  documentStore: DocumentStore;
+};
+
+export async function documentRoutes(
+  app: FastifyInstance,
+  options: DocumentRoutesOptions,
+) {
   app.get("/documents", async () => {
     return {
-      documents: listDocuments(),
+      documents: await options.documentStore.listDocuments(),
     };
   });
 
@@ -35,7 +37,9 @@ export async function documentRoutes(app: FastifyInstance) {
       });
     }
 
-    const record = getDocument(parsed.data.documentId);
+    const record = await options.documentStore.getDocument(
+      parsed.data.documentId,
+    );
 
     if (!record) {
       return reply.status(404).send({
@@ -60,7 +64,9 @@ export async function documentRoutes(app: FastifyInstance) {
       });
     }
 
-    const wasDeleted = deleteDocument(parsed.data.documentId);
+    const wasDeleted = await options.documentStore.deleteDocument(
+      parsed.data.documentId,
+    );
 
     if (!wasDeleted) {
       return reply.status(404).send({
@@ -95,7 +101,7 @@ export async function documentRoutes(app: FastifyInstance) {
       index: chunk.index,
     }));
 
-    const saved = saveDocument({
+    const saved = await options.documentStore.saveDocument({
       document,
       chunks,
     });

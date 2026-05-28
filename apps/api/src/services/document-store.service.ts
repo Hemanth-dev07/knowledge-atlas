@@ -1,30 +1,36 @@
 import type { ChunkRecord, DocumentRecord } from "@knowledge-atlas/shared";
 
-type StoredDocument = {
+export type StoredDocument = {
   document: DocumentRecord;
   chunks: ChunkRecord[];
 };
 
-const documents = new Map<string, StoredDocument>();
+export type DocumentStore = {
+  saveDocument(record: StoredDocument): Promise<StoredDocument>;
+  listDocuments(): Promise<DocumentRecord[]>;
+  getDocument(documentId: string): Promise<StoredDocument | null>;
+  deleteDocument(documentId: string): Promise<boolean>;
+};
 
-export function saveDocument(record: StoredDocument) {
-  documents.set(record.document.id, record);
+export function createInMemoryDocumentStore(): DocumentStore {
+  const documents = new Map<string, StoredDocument>();
 
-  return record;
-}
+  return {
+    async saveDocument(record) {
+      documents.set(record.document.id, record);
+      return record;
+    },
 
-export function listDocuments() {
-  return Array.from(documents.values()).map((record) => record.document);
-}
+    async listDocuments() {
+      return Array.from(documents.values()).map((record) => record.document);
+    },
 
-export function getDocument(documentId: string) {
-  return documents.get(documentId) ?? null;
-}
+    async getDocument(documentId) {
+      return documents.get(documentId) ?? null;
+    },
 
-export function deleteDocument(documentId: string) {
-  return documents.delete(documentId);
-}
-
-export function clearDocuments() {
-  documents.clear();
+    async deleteDocument(documentId) {
+      return documents.delete(documentId);
+    },
+  };
 }

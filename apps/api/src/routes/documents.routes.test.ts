@@ -1,14 +1,13 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { buildApp } from "../app.js";
-import { clearDocuments } from "../services/document-store.service.js";
+import { createInMemoryDocumentStore } from "../services/document-store.service.js";
 
 describe("document routes", () => {
-  beforeEach(() => {
-    clearDocuments();
-  });
-
   it("lists no documents initially", async () => {
-    const app = await buildApp({ logger: false });
+    const app = await buildApp({
+      logger: false,
+      documentStore: createInMemoryDocumentStore(),
+    });
 
     const response = await app.inject({
       method: "GET",
@@ -24,7 +23,10 @@ describe("document routes", () => {
   });
 
   it("creates a document and lists it", async () => {
-    const app = await buildApp({ logger: false });
+    const app = await buildApp({
+      logger: false,
+      documentStore: createInMemoryDocumentStore(),
+    });
 
     const createResponse = await app.inject({
       method: "POST",
@@ -54,7 +56,10 @@ describe("document routes", () => {
   });
 
   it("returns a stored document by ID", async () => {
-    const app = await buildApp({ logger: false });
+    const app = await buildApp({
+      logger: false,
+      documentStore: createInMemoryDocumentStore(),
+    });
 
     const createResponse = await app.inject({
       method: "POST",
@@ -79,7 +84,10 @@ describe("document routes", () => {
   });
 
   it("returns 400 for an invalid document ID", async () => {
-    const app = await buildApp({ logger: false });
+    const app = await buildApp({
+      logger: false,
+      documentStore: createInMemoryDocumentStore(),
+    });
 
     const response = await app.inject({
       method: "GET",
@@ -93,7 +101,10 @@ describe("document routes", () => {
   });
 
   it("returns 404 for a missing document", async () => {
-    const app = await buildApp({ logger: false });
+    const app = await buildApp({
+      logger: false,
+      documentStore: createInMemoryDocumentStore(),
+    });
 
     const response = await app.inject({
       method: "GET",
@@ -109,7 +120,10 @@ describe("document routes", () => {
   });
 
   it("deletes a stored document by ID", async () => {
-    const app = await buildApp({ logger: false });
+    const app = await buildApp({
+      logger: false,
+      documentStore: createInMemoryDocumentStore(),
+    });
 
     const createResponse = await app.inject({
       method: "POST",
@@ -140,7 +154,10 @@ describe("document routes", () => {
   });
 
   it("returns 400 when deleting with an invalid document ID", async () => {
-    const app = await buildApp({ logger: false });
+    const app = await buildApp({
+      logger: false,
+      documentStore: createInMemoryDocumentStore(),
+    });
 
     const response = await app.inject({
       method: "DELETE",
@@ -154,7 +171,10 @@ describe("document routes", () => {
   });
 
   it("returns 404 when deleting a missing document", async () => {
-    const app = await buildApp({ logger: false });
+    const app = await buildApp({
+      logger: false,
+      documentStore: createInMemoryDocumentStore(),
+    });
 
     const response = await app.inject({
       method: "DELETE",
