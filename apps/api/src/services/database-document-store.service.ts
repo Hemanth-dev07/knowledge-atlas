@@ -2,10 +2,7 @@ import type { ChunkRecord, DocumentRecord } from "@knowledge-atlas/shared";
 import { asc, desc, eq } from "drizzle-orm";
 import { db } from "../db/client.js";
 import { documentChunks, documents } from "../db/schema.js";
-import type {
-  DocumentStore,
-  StoredDocument,
-} from "./document-store.service.js";
+import type { DocumentStore } from "./document-store.service.js";
 
 type DocumentRow = typeof documents.$inferSelect;
 type ChunkRow = typeof documentChunks.$inferSelect;
