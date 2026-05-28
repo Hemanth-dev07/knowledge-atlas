@@ -138,9 +138,9 @@ export default function DocumentsPage() {
         </h1>
 
         <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-700">
-          Paste text below to send it to the backend document ingestion API. The
-          backend will validate the input, split it into chunks, and return the
-          generated document and chunk records.
+          Paste text below to store it in the knowledge base. The backend will
+          validate the input, split it into chunks, and persist the document in
+          PostgreSQL.
         </p>
 
         <section className="mt-10 rounded-lg border border-slate-200 bg-white p-5">
@@ -150,7 +150,7 @@ export default function DocumentsPage() {
             <p className="mt-3 text-sm text-slate-600">Loading documents...</p>
           ) : documents.length === 0 ? (
             <p className="mt-3 text-sm text-slate-600">
-              No documents have been added during this server session.
+              No documents have been added to the knowledge base yet.
             </p>
           ) : (
             <ul className="mt-4 grid gap-3">
