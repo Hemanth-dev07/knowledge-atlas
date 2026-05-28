@@ -21,6 +21,10 @@ export function getDocument(documentId: string) {
   return documents.get(documentId) ?? null;
 }
 
+export function deleteDocument(documentId: string) {
+  return documents.delete(documentId);
+}
+
 export function clearDocuments() {
   documents.clear();
 }

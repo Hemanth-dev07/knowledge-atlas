@@ -3,6 +3,7 @@ import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { chunkText } from "../services/chunking.service.js";
 import {
+  deleteDocument,
   getDocument,
   listDocuments,
   saveDocument,
@@ -43,6 +44,31 @@ export async function documentRoutes(app: FastifyInstance) {
     }
 
     return record;
+  });
+
+  app.delete("/documents/:documentId", async (request, reply) => {
+    const paramsSchema = z.object({
+      documentId: z.string().uuid("Document ID must be a valid UUID"),
+    });
+
+    const parsed = paramsSchema.safeParse(request.params);
+
+    if (!parsed.success) {
+      return reply.status(400).send({
+        error: "Invalid document ID",
+        details: parsed.error.flatten(),
+      });
+    }
+
+    const wasDeleted = deleteDocument(parsed.data.documentId);
+
+    if (!wasDeleted) {
+      return reply.status(404).send({
+        error: "Document not found",
+      });
+    }
+
+    return reply.status(204).send();
   });
 
   app.post("/documents", async (request, reply) => {

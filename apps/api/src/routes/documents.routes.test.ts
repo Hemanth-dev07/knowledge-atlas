@@ -107,4 +107,65 @@ describe("document routes", () => {
 
     await app.close();
   });
+
+  it("deletes a stored document by ID", async () => {
+    const app = await buildApp({ logger: false });
+
+    const createResponse = await app.inject({
+      method: "POST",
+      url: "/documents",
+      payload: {
+        title: "Delete Me",
+        text: "This document exists long enough to test deletion behavior.",
+      },
+    });
+
+    const createdBody = createResponse.json();
+
+    const deleteResponse = await app.inject({
+      method: "DELETE",
+      url: `/documents/${createdBody.document.id}`,
+    });
+
+    expect(deleteResponse.statusCode).toBe(204);
+
+    const detailResponse = await app.inject({
+      method: "GET",
+      url: `/documents/${createdBody.document.id}`,
+    });
+
+    expect(detailResponse.statusCode).toBe(404);
+
+    await app.close();
+  });
+
+  it("returns 400 when deleting with an invalid document ID", async () => {
+    const app = await buildApp({ logger: false });
+
+    const response = await app.inject({
+      method: "DELETE",
+      url: "/documents/not-a-valid-id",
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json().error).toBe("Invalid document ID");
+
+    await app.close();
+  });
+
+  it("returns 404 when deleting a missing document", async () => {
+    const app = await buildApp({ logger: false });
+
+    const response = await app.inject({
+      method: "DELETE",
+      url: "/documents/00000000-0000-4000-8000-000000000000",
+    });
+
+    expect(response.statusCode).toBe(404);
+    expect(response.json()).toEqual({
+      error: "Document not found",
+    });
+
+    await app.close();
+  });
 });

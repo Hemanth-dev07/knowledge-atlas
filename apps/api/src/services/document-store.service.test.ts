@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   clearDocuments,
+  deleteDocument,
   getDocument,
   listDocuments,
   saveDocument,
@@ -54,5 +55,20 @@ describe("document store", () => {
 
   it("returns null when a document does not exist", () => {
     expect(getDocument("33333333-3333-4333-8333-333333333333")).toBeNull();
+  });
+
+  it("deletes a stored document", () => {
+    saveDocument({
+      document,
+      chunks,
+    });
+
+    expect(deleteDocument(document.id)).toBe(true);
+    expect(getDocument(document.id)).toBeNull();
+    expect(listDocuments()).toEqual([]);
+  });
+
+  it("returns false when deleting a missing document", () => {
+    expect(deleteDocument("44444444-4444-4444-8444-444444444444")).toBe(false);
   });
 });
