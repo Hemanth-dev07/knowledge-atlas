@@ -6,7 +6,12 @@ import type {
   GetDocumentResponse,
   ListDocumentsResponse,
 } from "@/lib/api";
-import { createDocument, getDocument, listDocuments } from "@/lib/api";
+import {
+  createDocument,
+  deleteDocument,
+  getDocument,
+  listDocuments,
+} from "@/lib/api";
 
 export default function DocumentsPage() {
   const [title, setTitle] = useState("");
@@ -22,6 +27,9 @@ export default function DocumentsPage() {
     useState<GetDocumentResponse | null>(null);
   const [isLoadingSelectedDocument, setIsLoadingSelectedDocument] =
     useState(false);
+  const [deletingDocumentId, setDeletingDocumentId] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     async function loadDocuments() {
@@ -57,6 +65,35 @@ export default function DocumentsPage() {
       );
     } finally {
       setIsLoadingSelectedDocument(false);
+    }
+  }
+
+  async function handleDeleteDocument(documentId: string) {
+    setError(null);
+    setDeletingDocumentId(documentId);
+
+    try {
+      await deleteDocument(documentId);
+
+      setDocuments((currentDocuments) =>
+        currentDocuments.filter((document) => document.id !== documentId),
+      );
+
+      if (selectedDocument?.document.id === documentId) {
+        setSelectedDocument(null);
+      }
+
+      if (result?.document.id === documentId) {
+        setResult(null);
+      }
+    } catch (caughtError) {
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Failed to delete document",
+      );
+    } finally {
+      setDeletingDocumentId(null);
     }
   }
 
@@ -118,21 +155,37 @@ export default function DocumentsPage() {
           ) : (
             <ul className="mt-4 grid gap-3">
               {documents.map((document) => (
-                <li key={document.id}>
-                  <button
-                    type="button"
-                    onClick={() => void handleSelectDocument(document.id)}
-                    className={`w-full rounded-lg border p-4 text-left transition hover:border-blue-300 hover:bg-blue-50 ${
-                      selectedDocument?.document.id === document.id
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-slate-200 bg-slate-50"
-                    }`}
-                  >
-                    <p className="font-medium">{document.title}</p>
-                    <p className="mt-1 text-sm text-slate-600">
-                      Added on {new Date(document.createdAt).toLocaleString()}
-                    </p>
-                  </button>
+                <li
+                  key={document.id}
+                  className={`rounded-lg border p-4 transition ${
+                    selectedDocument?.document.id === document.id
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-slate-200 bg-slate-50"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <button
+                      type="button"
+                      onClick={() => void handleSelectDocument(document.id)}
+                      className="min-w-0 flex-1 text-left"
+                    >
+                      <p className="font-medium">{document.title}</p>
+                      <p className="mt-1 text-sm text-slate-600">
+                        Added on {new Date(document.createdAt).toLocaleString()}
+                      </p>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => void handleDeleteDocument(document.id)}
+                      disabled={deletingDocumentId === document.id}
+                      className="rounded-md border border-red-200 px-3 py-1 text-sm font-medium text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {deletingDocumentId === document.id
+                        ? "Deleting..."
+                        : "Delete"}
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>

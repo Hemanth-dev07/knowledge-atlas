@@ -85,6 +85,18 @@ export async function getDocument(
   return response.json();
 }
 
+export async function deleteDocument(documentId: string): Promise<void> {
+  const apiBaseUrl = getApiBaseUrl();
+
+  const response = await fetch(`${apiBaseUrl}/documents/${documentId}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Delete document failed with status ${response.status}`);
+  }
+}
+
 export async function createDocument(
   input: CreateDocumentInput,
 ): Promise<CreateDocumentResponse> {
