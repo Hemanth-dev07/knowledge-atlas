@@ -15,6 +15,7 @@ export async function buildApp(options: BuildAppOptions = {}) {
 
   await app.register(cors, {
     origin: true,
+    methods: ["GET", "HEAD", "POST", "DELETE"],
   });
 
   await app.register(rootRoutes);
