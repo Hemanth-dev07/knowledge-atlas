@@ -1,8 +1,12 @@
 import type { ChunkRecord, DocumentRecord } from "@knowledge-atlas/shared";
 
+export type StoredChunk = ChunkRecord & {
+  embedding?: number[] | null;
+};
+
 export type StoredDocument = {
   document: DocumentRecord;
-  chunks: ChunkRecord[];
+  chunks: StoredChunk[];
 };
 
 export type DocumentStore = {

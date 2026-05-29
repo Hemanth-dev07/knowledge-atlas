@@ -2,11 +2,18 @@ import { describe, expect, it } from "vitest";
 import { buildApp } from "../app.js";
 import { createInMemoryDocumentStore } from "../services/document-store.service.js";
 
+const fakeEmbedding = Array.from({ length: 384 }, () => 0.1);
+
+async function generateFakeEmbedding() {
+  return fakeEmbedding;
+}
+
 describe("document routes", () => {
   it("lists no documents initially", async () => {
     const app = await buildApp({
       logger: false,
       documentStore: createInMemoryDocumentStore(),
+      generateEmbedding: generateFakeEmbedding,
     });
 
     const response = await app.inject({
@@ -26,6 +33,7 @@ describe("document routes", () => {
     const app = await buildApp({
       logger: false,
       documentStore: createInMemoryDocumentStore(),
+      generateEmbedding: generateFakeEmbedding,
     });
 
     const createResponse = await app.inject({
@@ -59,6 +67,7 @@ describe("document routes", () => {
     const app = await buildApp({
       logger: false,
       documentStore: createInMemoryDocumentStore(),
+      generateEmbedding: generateFakeEmbedding,
     });
 
     const createResponse = await app.inject({
@@ -87,6 +96,7 @@ describe("document routes", () => {
     const app = await buildApp({
       logger: false,
       documentStore: createInMemoryDocumentStore(),
+      generateEmbedding: generateFakeEmbedding,
     });
 
     const response = await app.inject({
@@ -104,6 +114,7 @@ describe("document routes", () => {
     const app = await buildApp({
       logger: false,
       documentStore: createInMemoryDocumentStore(),
+      generateEmbedding: generateFakeEmbedding,
     });
 
     const response = await app.inject({
@@ -123,6 +134,7 @@ describe("document routes", () => {
     const app = await buildApp({
       logger: false,
       documentStore: createInMemoryDocumentStore(),
+      generateEmbedding: generateFakeEmbedding,
     });
 
     const createResponse = await app.inject({
@@ -157,6 +169,7 @@ describe("document routes", () => {
     const app = await buildApp({
       logger: false,
       documentStore: createInMemoryDocumentStore(),
+      generateEmbedding: generateFakeEmbedding,
     });
 
     const response = await app.inject({
@@ -174,6 +187,7 @@ describe("document routes", () => {
     const app = await buildApp({
       logger: false,
       documentStore: createInMemoryDocumentStore(),
+      generateEmbedding: generateFakeEmbedding,
     });
 
     const response = await app.inject({

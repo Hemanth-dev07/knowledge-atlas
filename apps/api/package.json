@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@fastify/cors": "^11.0.0",
+    "@huggingface/transformers": "^4.2.0",
     "@knowledge-atlas/shared": "file:../../packages/shared",
     "dotenv": "^17.0.0",
     "drizzle-orm": "^0.45.2",

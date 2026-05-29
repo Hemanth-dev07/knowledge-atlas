@@ -3,6 +3,7 @@ import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { chunkText } from "../services/chunking.service.js";
 import type { DocumentStore } from "../services/document-store.service.js";
+import type { EmbeddingGenerator } from "../services/embedding.service.js";
 
 const createDocumentSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -11,7 +12,19 @@ const createDocumentSchema = z.object({
 
 type DocumentRoutesOptions = {
   documentStore: DocumentStore;
+  generateEmbedding: EmbeddingGenerator;
 };
+
+function toPublicChunks(
+  chunks: Array<ChunkRecord & { embedding?: number[] | null }>,
+): ChunkRecord[] {
+  return chunks.map((chunk) => ({
+    id: chunk.id,
+    documentId: chunk.documentId,
+    text: chunk.text,
+    index: chunk.index,
+  }));
+}
 
 export async function documentRoutes(
   app: FastifyInstance,
@@ -47,7 +60,10 @@ export async function documentRoutes(
       });
     }
 
-    return record;
+    return {
+      document: record.document,
+      chunks: toPublicChunks(record.chunks),
+    };
   });
 
   app.delete("/documents/:documentId", async (request, reply) => {
@@ -94,18 +110,24 @@ export async function documentRoutes(
       createdAt: new Date().toISOString(),
     };
 
-    const chunks: ChunkRecord[] = chunkText(parsed.data.text).map((chunk) => ({
-      id: crypto.randomUUID(),
-      documentId: document.id,
-      text: chunk.text,
-      index: chunk.index,
-    }));
+    const chunks = await Promise.all(
+      chunkText(parsed.data.text).map(async (chunk) => ({
+        id: crypto.randomUUID(),
+        documentId: document.id,
+        text: chunk.text,
+        index: chunk.index,
+        embedding: await options.generateEmbedding(chunk.text),
+      })),
+    );
 
     const saved = await options.documentStore.saveDocument({
       document,
       chunks,
     });
 
-    return reply.status(201).send(saved);
+    return reply.status(201).send({
+      document: saved.document,
+      chunks: toPublicChunks(saved.chunks),
+    });
   });
 }

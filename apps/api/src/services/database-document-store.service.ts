@@ -55,6 +55,7 @@ export const databaseDocumentStore: DocumentStore = {
             id: chunk.id,
             documentId: chunk.documentId,
             text: chunk.text,
+            embedding: chunk.embedding ?? null,
             chunkIndex: chunk.index,
           })),
         );
