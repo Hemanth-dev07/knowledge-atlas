@@ -1,16 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { SyntheticEvent } from "react";
 import type {
   CreateDocumentResponse,
   GetDocumentResponse,
   ListDocumentsResponse,
+  SearchDocumentsResponse,
 } from "@/lib/api";
 import {
   createDocument,
   deleteDocument,
   getDocument,
   listDocuments,
+  searchDocuments,
 } from "@/lib/api";
 
 export default function DocumentsPage() {
@@ -30,6 +33,10 @@ export default function DocumentsPage() {
   const [deletingDocumentId, setDeletingDocumentId] = useState<string | null>(
     null,
   );
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] =
+    useState<SearchDocumentsResponse | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     async function loadDocuments() {
@@ -97,7 +104,30 @@ export default function DocumentsPage() {
     }
   }
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSearch(event: SyntheticEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    setError(null);
+    setSearchResults(null);
+    setIsSearching(true);
+
+    try {
+      const response = await searchDocuments({
+        query: searchQuery,
+        limit: 5,
+      });
+
+      setSearchResults(response);
+    } catch (caughtError) {
+      setError(
+        caughtError instanceof Error ? caughtError.message : "Search failed",
+      );
+    } finally {
+      setIsSearching(false);
+    }
+  }
+
+  async function handleSubmit(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
 
     setError(null);
@@ -142,6 +172,63 @@ export default function DocumentsPage() {
           validate the input, split it into chunks, and persist the document in
           PostgreSQL.
         </p>
+
+        <section className="mt-10 rounded-lg border border-slate-200 bg-white p-5">
+          <h2 className="text-xl font-semibold">Semantic search</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Search by meaning across document chunks stored with vector
+            embeddings.
+          </p>
+
+          <form
+            onSubmit={handleSearch}
+            className="mt-5 flex flex-col gap-3 sm:flex-row"
+          >
+            <input
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-600"
+              placeholder="Ask about RAG, embeddings, or your saved notes"
+            />
+
+            <button
+              type="submit"
+              disabled={isSearching}
+              className="rounded-lg bg-slate-950 px-5 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-400"
+            >
+              {isSearching ? "Searching..." : "Search"}
+            </button>
+          </form>
+
+          {searchResults ? (
+            <div className="mt-5 grid gap-3">
+              {searchResults.results.length === 0 ? (
+                <p className="text-sm text-slate-600">
+                  No strong semantic matches found.
+                </p>
+              ) : (
+                searchResults.results.map((chunk) => (
+                  <article
+                    key={chunk.id}
+                    className="rounded-lg border border-slate-200 bg-slate-50 p-4"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="text-sm font-medium text-slate-700">
+                        Chunk {chunk.index + 1}
+                      </p>
+                    </div>
+                    <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-700">
+                      {chunk.text}
+                    </p>
+                    <p className="mt-3 text-xs text-slate-500">
+                      Document ID: {chunk.documentId}
+                    </p>
+                  </article>
+                ))
+              )}
+            </div>
+          ) : null}
+        </section>
 
         <section className="mt-10 rounded-lg border border-slate-200 bg-white p-5">
           <h2 className="text-xl font-semibold">Current documents</h2>

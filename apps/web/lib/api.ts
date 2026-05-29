@@ -1,4 +1,8 @@
-import type { ChunkRecord, DocumentRecord } from "@knowledge-atlas/shared";
+import type {
+  ChunkRecord,
+  DocumentRecord,
+  RetrievedChunk,
+} from "@knowledge-atlas/shared";
 
 function getApiBaseUrl() {
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -32,6 +36,17 @@ export type CreateDocumentResponse = {
 export type GetDocumentResponse = {
   document: DocumentRecord;
   chunks: ChunkRecord[];
+};
+
+export type SearchDocumentsInput = {
+  query: string;
+  limit?: number;
+  minScore?: number;
+};
+
+export type SearchDocumentsResponse = {
+  query: string;
+  results: RetrievedChunk[];
 };
 
 type ApiErrorResponse = {
@@ -95,6 +110,39 @@ export async function deleteDocument(documentId: string): Promise<void> {
   if (!response.ok) {
     throw new Error(`Delete document failed with status ${response.status}`);
   }
+}
+
+export async function searchDocuments(
+  input: SearchDocumentsInput,
+): Promise<SearchDocumentsResponse> {
+  const apiBaseUrl = getApiBaseUrl();
+
+  const response = await fetch(`${apiBaseUrl}/search`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(input),
+  });
+
+  if (!response.ok) {
+    const errorBody = (await response.json()) as ApiErrorResponse;
+
+    const fieldMessages = Object.values(errorBody.details?.fieldErrors ?? {})
+      .flat()
+      .filter(Boolean);
+
+    const formMessages = errorBody.details?.formErrors ?? [];
+
+    const message =
+      [...fieldMessages, ...formMessages].join(" ") ||
+      errorBody.error ||
+      `Search failed with status ${response.status}`;
+
+    throw new Error(message);
+  }
+
+  return response.json();
 }
 
 export async function createDocument(
