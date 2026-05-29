@@ -1,11 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { buildApp } from "../app.js";
 import { createInMemoryDocumentStore } from "../services/document-store.service.js";
+import type { ChunkSearchService } from "../services/chunk-search.service.js";
 
 const fakeEmbedding = Array.from({ length: 384 }, () => 0.1);
 
 async function generateFakeEmbedding() {
   return fakeEmbedding;
+}
+
+function createFakeChunkSearchService(): ChunkSearchService {
+  return {
+    async searchSimilarChunks() {
+      return [];
+    },
+  };
 }
 
 describe("document routes", () => {
@@ -14,6 +23,7 @@ describe("document routes", () => {
       logger: false,
       documentStore: createInMemoryDocumentStore(),
       generateEmbedding: generateFakeEmbedding,
+      chunkSearchService: createFakeChunkSearchService(),
     });
 
     const response = await app.inject({
@@ -34,6 +44,7 @@ describe("document routes", () => {
       logger: false,
       documentStore: createInMemoryDocumentStore(),
       generateEmbedding: generateFakeEmbedding,
+      chunkSearchService: createFakeChunkSearchService(),
     });
 
     const createResponse = await app.inject({
@@ -68,6 +79,7 @@ describe("document routes", () => {
       logger: false,
       documentStore: createInMemoryDocumentStore(),
       generateEmbedding: generateFakeEmbedding,
+      chunkSearchService: createFakeChunkSearchService(),
     });
 
     const createResponse = await app.inject({
@@ -97,6 +109,7 @@ describe("document routes", () => {
       logger: false,
       documentStore: createInMemoryDocumentStore(),
       generateEmbedding: generateFakeEmbedding,
+      chunkSearchService: createFakeChunkSearchService(),
     });
 
     const response = await app.inject({
@@ -115,6 +128,7 @@ describe("document routes", () => {
       logger: false,
       documentStore: createInMemoryDocumentStore(),
       generateEmbedding: generateFakeEmbedding,
+      chunkSearchService: createFakeChunkSearchService(),
     });
 
     const response = await app.inject({
@@ -135,6 +149,7 @@ describe("document routes", () => {
       logger: false,
       documentStore: createInMemoryDocumentStore(),
       generateEmbedding: generateFakeEmbedding,
+      chunkSearchService: createFakeChunkSearchService(),
     });
 
     const createResponse = await app.inject({
@@ -170,6 +185,7 @@ describe("document routes", () => {
       logger: false,
       documentStore: createInMemoryDocumentStore(),
       generateEmbedding: generateFakeEmbedding,
+      chunkSearchService: createFakeChunkSearchService(),
     });
 
     const response = await app.inject({
@@ -188,6 +204,7 @@ describe("document routes", () => {
       logger: false,
       documentStore: createInMemoryDocumentStore(),
       generateEmbedding: generateFakeEmbedding,
+      chunkSearchService: createFakeChunkSearchService(),
     });
 
     const response = await app.inject({

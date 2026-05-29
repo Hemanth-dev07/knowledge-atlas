@@ -3,12 +3,15 @@ import fastify from "fastify";
 import { documentRoutes } from "./routes/documents.routes.js";
 import { healthRoutes } from "./routes/health.routes.js";
 import { rootRoutes } from "./routes/root.routes.js";
+import { searchRoutes } from "./routes/search.routes.js";
 import type { DocumentStore } from "./services/document-store.service.js";
 import type { EmbeddingGenerator } from "./services/embedding.service.js";
+import type { ChunkSearchService } from "./services/chunk-search.service.js";
 
 type BuildAppOptions = {
   logger?: boolean;
   documentStore?: DocumentStore;
+  chunkSearchService?: ChunkSearchService;
   generateEmbedding?: EmbeddingGenerator;
 };
 
@@ -25,6 +28,13 @@ async function getDefaultEmbeddingGenerator() {
   return generateEmbedding;
 }
 
+async function getDefaultChunkSearchService() {
+  const { databaseChunkSearchService } =
+    await import("./services/database-chunk-search.service.js");
+
+  return databaseChunkSearchService;
+}
+
 export async function buildApp(options: BuildAppOptions = {}) {
   const app = fastify({
     logger: options.logger ?? true,
@@ -39,11 +49,17 @@ export async function buildApp(options: BuildAppOptions = {}) {
     options.documentStore ?? (await getDefaultDocumentStore());
   const embeddingGenerator =
     options.generateEmbedding ?? (await getDefaultEmbeddingGenerator());
+  const chunkSearchService =
+    options.chunkSearchService ?? (await getDefaultChunkSearchService());
 
   await app.register(rootRoutes);
   await app.register(healthRoutes);
   await app.register(documentRoutes, {
     documentStore,
+    generateEmbedding: embeddingGenerator,
+  });
+  await app.register(searchRoutes, {
+    chunkSearchService,
     generateEmbedding: embeddingGenerator,
   });
 
