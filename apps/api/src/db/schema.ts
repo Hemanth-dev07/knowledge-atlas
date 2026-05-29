@@ -1,4 +1,11 @@
-import { integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+  vector,
+} from "drizzle-orm/pg-core";
 
 export const documents = pgTable("documents", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -15,6 +22,7 @@ export const documentChunks = pgTable("document_chunks", {
     .notNull()
     .references(() => documents.id, { onDelete: "cascade" }),
   text: text("text").notNull(),
+  embedding: vector("embedding", { dimensions: 384 }),
   chunkIndex: integer("chunk_index").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()

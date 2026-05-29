@@ -8,6 +8,20 @@
       "when": 1779964593438,
       "tag": "0000_youthful_norman_osborn",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1780037699604,
+      "tag": "0001_chemical_avengers",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1780038145081,
+      "tag": "0002_needy_maddog",
+      "breakpoints": true
     }
   ]
 }
