@@ -11,7 +11,7 @@ async function generateFakeEmbedding() {
 
 function createFakeChunkSearchService(): ChunkSearchService {
   return {
-    async searchSimilarChunks({ limit }) {
+    async searchSimilarChunks({ limit, minScore }) {
       return [
         {
           id: "22222222-2222-4222-8222-222222222222",
@@ -20,7 +20,16 @@ function createFakeChunkSearchService(): ChunkSearchService {
           index: 0,
           score: 0.91,
         },
-      ].slice(0, limit);
+        {
+          id: "33333333-3333-4333-8333-333333333333",
+          documentId: "11111111-1111-4111-8111-111111111111",
+          text: "Unrelated low score chunk.",
+          index: 1,
+          score: 0.05,
+        },
+      ]
+        .filter((chunk) => chunk.score >= minScore)
+        .slice(0, limit);
     },
   };
 }

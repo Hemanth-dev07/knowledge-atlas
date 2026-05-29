@@ -6,6 +6,7 @@ import type { EmbeddingGenerator } from "../services/embedding.service.js";
 const searchSchema = z.object({
   query: z.string().trim().min(1, "Search query is required"),
   limit: z.number().int().min(1).max(10).default(5),
+  minScore: z.number().min(0).max(1).default(0.2),
 });
 
 type SearchRoutesOptions = {
@@ -32,6 +33,7 @@ export async function searchRoutes(
     const results = await options.chunkSearchService.searchSimilarChunks({
       queryEmbedding,
       limit: parsed.data.limit,
+      minScore: parsed.data.minScore,
     });
 
     return {

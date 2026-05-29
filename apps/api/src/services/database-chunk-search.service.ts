@@ -6,7 +6,7 @@ import { documentChunks } from "../db/schema.js";
 import type { ChunkSearchService } from "./chunk-search.service.js";
 
 export const databaseChunkSearchService: ChunkSearchService = {
-  async searchSimilarChunks({ queryEmbedding, limit }) {
+  async searchSimilarChunks({ queryEmbedding, limit, minScore }) {
     const similarity = sql<number>`1 - (${cosineDistance(
       documentChunks.embedding,
       queryEmbedding,
@@ -25,11 +25,13 @@ export const databaseChunkSearchService: ChunkSearchService = {
       .orderBy(desc(similarity))
       .limit(limit);
 
-    return rows.map(
-      (row): RetrievedChunk => ({
-        ...row,
-        score: Number(row.score),
-      }),
-    );
+    return rows
+      .map(
+        (row): RetrievedChunk => ({
+          ...row,
+          score: Number(row.score),
+        }),
+      )
+      .filter((chunk) => chunk.score >= minScore);
   },
 };
