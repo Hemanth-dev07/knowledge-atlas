@@ -61,8 +61,12 @@ export async function buildApp(options: BuildAppOptions = {}) {
     options.generateEmbedding ?? (await getDefaultEmbeddingGenerator());
   const chunkSearchService =
     options.chunkSearchService ?? (await getDefaultChunkSearchService());
-  const answerGenerator =
-    options.answerGenerator ?? (await getDefaultAnswerGenerator());
+  const answerGenerator: AnswerGenerator =
+    options.answerGenerator ??
+    (async (input) => {
+      const defaultAnswerGenerator = await getDefaultAnswerGenerator();
+      return defaultAnswerGenerator(input);
+    });
 
   await app.register(rootRoutes);
   await app.register(healthRoutes);
