@@ -4,6 +4,7 @@ import { documentRoutes } from "./routes/documents.routes.js";
 import { healthRoutes } from "./routes/health.routes.js";
 import { rootRoutes } from "./routes/root.routes.js";
 import { searchRoutes } from "./routes/search.routes.js";
+import { ragRoutes } from "./routes/rag.routes.js";
 import type { DocumentStore } from "./services/document-store.service.js";
 import type { EmbeddingGenerator } from "./services/embedding.service.js";
 import type { ChunkSearchService } from "./services/chunk-search.service.js";
@@ -59,6 +60,10 @@ export async function buildApp(options: BuildAppOptions = {}) {
     generateEmbedding: embeddingGenerator,
   });
   await app.register(searchRoutes, {
+    chunkSearchService,
+    generateEmbedding: embeddingGenerator,
+  });
+  await app.register(ragRoutes, {
     chunkSearchService,
     generateEmbedding: embeddingGenerator,
   });

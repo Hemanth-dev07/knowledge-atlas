@@ -5,7 +5,13 @@ export async function rootRoutes(app: FastifyInstance) {
     return {
       name: "Knowledge Atlas API",
       status: "running",
-      routes: ["/health", "/documents", "/documents/:documentId", "/search"],
+      routes: [
+        "/health",
+        "/documents",
+        "/documents/:documentId",
+        "/search",
+        "/rag/preview",
+      ],
     };
   });
 }

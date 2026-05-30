@@ -17,6 +17,12 @@ export type RetrievedChunk = ChunkRecord & {
   score: number;
 };
 
+export type RagPreviewResponse = {
+  question: string;
+  answer: string;
+  evidence: RetrievedChunk[];
+};
+
 export type GraphNode = {
   id: string;
   label: string;
