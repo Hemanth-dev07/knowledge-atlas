@@ -14,6 +14,8 @@ Current checkpoint as of 2026-05-30:
 - New chunks receive local TypeScript-generated embeddings.
 - The API supports semantic chunk search.
 - The frontend has a working document page and semantic search UI.
+- The API has a first RAG preview endpoint that retrieves evidence for a question.
+- The frontend has an Ask Knowledge Atlas UI that displays a preview answer and evidence chunks.
 - Learning notes are stored locally in `docs/Day*.md` and ignored by Git.
 
 ## Phase 1: Project Foundation
@@ -200,19 +202,23 @@ Goal: answer questions using retrieved evidence instead of guessing.
 
 Next likely milestone.
 
-Tasks:
+Completed tasks:
 
 - Design a RAG request/response shape
 - Accept user questions
 - Retrieve relevant chunks using semantic search
+- Return a preview answer plus evidence chunks
+- Add frontend RAG preview UI
+
+Remaining tasks:
+
 - Build a grounded context from retrieved chunks
 - Choose a free or free-tier JavaScript-friendly answer generation option
 - Generate an answer from retrieved context
-- Return answer plus evidence chunks
 - Handle cases where retrieved context is weak or missing
-- Add frontend chat/search-answer UI
+- Add chat-style conversation flow
 
-Status: planned next.
+Status: first retrieval-preview slice completed. Real answer generation is still planned.
 
 Notes:
 
@@ -339,9 +345,9 @@ Status: planned.
 
 Recommended immediate order:
 
-1. Start planning the first RAG endpoint.
-2. Decide the answer-generation approach using free/free-tier JavaScript-friendly tooling.
-3. Return answers with retrieved evidence.
-4. Add a simple frontend RAG/chat surface.
+1. Decide the answer-generation approach using free/free-tier JavaScript-friendly tooling.
+2. Add a real answer-generation service.
+3. Build prompts that force answers to stay grounded in retrieved evidence.
+4. Return answer plus citations/evidence.
 5. Then begin authentication and user ownership.
 
