@@ -221,7 +221,7 @@ export default function DocumentsPage() {
                       {chunk.text}
                     </p>
                     <p className="mt-3 text-xs text-slate-500">
-                      Document ID: {chunk.documentId}
+                      From {chunk.documentTitle}
                     </p>
                   </article>
                 ))

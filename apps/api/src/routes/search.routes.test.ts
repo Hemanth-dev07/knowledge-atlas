@@ -16,6 +16,7 @@ function createFakeChunkSearchService(): ChunkSearchService {
         {
           id: "22222222-2222-4222-8222-222222222222",
           documentId: "11111111-1111-4111-8111-111111111111",
+          documentTitle: "RAG Notes",
           text: "RAG retrieves context before generation.",
           index: 0,
           score: 0.91,
@@ -23,6 +24,7 @@ function createFakeChunkSearchService(): ChunkSearchService {
         {
           id: "33333333-3333-4333-8333-333333333333",
           documentId: "11111111-1111-4111-8111-111111111111",
+          documentTitle: "Unrelated Notes",
           text: "Unrelated low score chunk.",
           index: 1,
           score: 0.05,
@@ -59,6 +61,7 @@ describe("search routes", () => {
         {
           id: "22222222-2222-4222-8222-222222222222",
           documentId: "11111111-1111-4111-8111-111111111111",
+          documentTitle: "RAG Notes",
           text: "RAG retrieves context before generation.",
           index: 0,
           score: 0.91,

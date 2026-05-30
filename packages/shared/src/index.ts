@@ -13,6 +13,7 @@ export type ChunkRecord = {
 };
 
 export type RetrievedChunk = ChunkRecord & {
+  documentTitle: string;
   score: number;
 };
 

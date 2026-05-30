@@ -1,8 +1,8 @@
 import type { RetrievedChunk } from "@knowledge-atlas/shared";
-import { desc, isNotNull, sql } from "drizzle-orm";
+import { desc, eq, isNotNull, sql } from "drizzle-orm";
 import { cosineDistance } from "drizzle-orm/sql/functions/vector";
 import { db } from "../db/client.js";
-import { documentChunks } from "../db/schema.js";
+import { documentChunks, documents } from "../db/schema.js";
 import type { ChunkSearchService } from "./chunk-search.service.js";
 
 export const databaseChunkSearchService: ChunkSearchService = {
@@ -16,11 +16,13 @@ export const databaseChunkSearchService: ChunkSearchService = {
       .select({
         id: documentChunks.id,
         documentId: documentChunks.documentId,
+        documentTitle: documents.title,
         text: documentChunks.text,
         index: documentChunks.chunkIndex,
         score: similarity,
       })
       .from(documentChunks)
+      .innerJoin(documents, eq(documentChunks.documentId, documents.id))
       .where(isNotNull(documentChunks.embedding))
       .orderBy(desc(similarity))
       .limit(limit);
