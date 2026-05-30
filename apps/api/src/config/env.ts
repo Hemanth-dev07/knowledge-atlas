@@ -7,6 +7,11 @@ config({
 });
 
 const databaseUrl = process.env.DATABASE_URL;
+const answerGenerationProvider =
+  process.env.ANSWER_GENERATION_PROVIDER ?? "gemini";
+const answerGenerationApiKey = process.env.ANSWER_GENERATION_API_KEY;
+const answerGenerationModel =
+  process.env.ANSWER_GENERATION_MODEL ?? "gemini-3.5-flash";
 
 if (!databaseUrl) {
   throw new Error("DATABASE_URL is not configured");
@@ -15,4 +20,7 @@ if (!databaseUrl) {
 export const env = {
   apiPort: Number(process.env.API_PORT ?? 4000),
   databaseUrl,
+  answerGenerationProvider,
+  answerGenerationApiKey,
+  answerGenerationModel,
 };

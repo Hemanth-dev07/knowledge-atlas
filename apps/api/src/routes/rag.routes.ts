@@ -3,6 +3,7 @@ import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import type { ChunkSearchService } from "../services/chunk-search.service.js";
 import type { EmbeddingGenerator } from "../services/embedding.service.js";
+import type { AnswerGenerator } from "../services/answer-generator.service.js";
 
 const ragPreviewSchema = z.object({
   question: z.string().trim().min(1, "Question is required"),
@@ -13,6 +14,7 @@ const ragPreviewSchema = z.object({
 type RagRoutesOptions = {
   chunkSearchService: ChunkSearchService;
   generateEmbedding: EmbeddingGenerator;
+  answerGenerator: AnswerGenerator;
 };
 
 export async function ragRoutes(
@@ -39,12 +41,17 @@ export async function ragRoutes(
       minScore: parsed.data.minScore,
     });
 
+    const answer =
+      evidence.length > 0
+        ? await options.answerGenerator({
+            question: parsed.data.question,
+            evidence,
+          })
+        : "I could not find strong enough context for this question yet.";
+
     const response: RagPreviewResponse = {
       question: parsed.data.question,
-      answer:
-        evidence.length > 0
-          ? "I found relevant context for this question. Answer generation will be added in the next RAG milestone."
-          : "I could not find strong enough context for this question yet.",
+      answer,
       evidence,
     };
 

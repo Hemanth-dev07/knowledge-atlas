@@ -9,6 +9,10 @@ async function generateFakeEmbedding() {
   return fakeEmbedding;
 }
 
+async function generateFakeAnswer() {
+  return "RAG retrieves context before generation. [1]";
+}
+
 function createFakeChunkSearchService(results = 1): ChunkSearchService {
   return {
     async searchSimilarChunks({ limit }) {
@@ -35,6 +39,7 @@ describe("RAG routes", () => {
       documentStore: createInMemoryDocumentStore(),
       chunkSearchService: createFakeChunkSearchService(),
       generateEmbedding: generateFakeEmbedding,
+      answerGenerator: generateFakeAnswer,
     });
 
     const response = await app.inject({
@@ -49,8 +54,7 @@ describe("RAG routes", () => {
     expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual({
       question: "How does RAG retrieve context?",
-      answer:
-        "I found relevant context for this question. Answer generation will be added in the next RAG milestone.",
+      answer: "RAG retrieves context before generation. [1]",
       evidence: [
         {
           id: "22222222-2222-4222-8222-222222222222",
@@ -72,6 +76,7 @@ describe("RAG routes", () => {
       documentStore: createInMemoryDocumentStore(),
       chunkSearchService: createFakeChunkSearchService(0),
       generateEmbedding: generateFakeEmbedding,
+      answerGenerator: generateFakeAnswer,
     });
 
     const response = await app.inject({
@@ -98,6 +103,7 @@ describe("RAG routes", () => {
       documentStore: createInMemoryDocumentStore(),
       chunkSearchService: createFakeChunkSearchService(),
       generateEmbedding: generateFakeEmbedding,
+      answerGenerator: generateFakeAnswer,
     });
 
     const response = await app.inject({

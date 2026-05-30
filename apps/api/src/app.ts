@@ -8,12 +8,14 @@ import { ragRoutes } from "./routes/rag.routes.js";
 import type { DocumentStore } from "./services/document-store.service.js";
 import type { EmbeddingGenerator } from "./services/embedding.service.js";
 import type { ChunkSearchService } from "./services/chunk-search.service.js";
+import type { AnswerGenerator } from "./services/answer-generator.service.js";
 
 type BuildAppOptions = {
   logger?: boolean;
   documentStore?: DocumentStore;
   chunkSearchService?: ChunkSearchService;
   generateEmbedding?: EmbeddingGenerator;
+  answerGenerator?: AnswerGenerator;
 };
 
 async function getDefaultDocumentStore() {
@@ -36,6 +38,13 @@ async function getDefaultChunkSearchService() {
   return databaseChunkSearchService;
 }
 
+async function getDefaultAnswerGenerator() {
+  const { generateGeminiAnswer } =
+    await import("./services/gemini-answer-generator.service.js");
+
+  return generateGeminiAnswer;
+}
+
 export async function buildApp(options: BuildAppOptions = {}) {
   const app = fastify({
     logger: options.logger ?? true,
@@ -52,6 +61,8 @@ export async function buildApp(options: BuildAppOptions = {}) {
     options.generateEmbedding ?? (await getDefaultEmbeddingGenerator());
   const chunkSearchService =
     options.chunkSearchService ?? (await getDefaultChunkSearchService());
+  const answerGenerator =
+    options.answerGenerator ?? (await getDefaultAnswerGenerator());
 
   await app.register(rootRoutes);
   await app.register(healthRoutes);
@@ -66,6 +77,7 @@ export async function buildApp(options: BuildAppOptions = {}) {
   await app.register(ragRoutes, {
     chunkSearchService,
     generateEmbedding: embeddingGenerator,
+    answerGenerator,
   });
 
   return app;
