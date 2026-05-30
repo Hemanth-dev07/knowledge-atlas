@@ -6,6 +6,7 @@ import type {
   CreateDocumentResponse,
   GetDocumentResponse,
   ListDocumentsResponse,
+  RagPreviewApiResponse,
   SearchDocumentsResponse,
 } from "@/lib/api";
 import {
@@ -13,6 +14,7 @@ import {
   deleteDocument,
   getDocument,
   listDocuments,
+  previewRagAnswer,
   searchDocuments,
 } from "@/lib/api";
 
@@ -37,6 +39,11 @@ export default function DocumentsPage() {
   const [searchResults, setSearchResults] =
     useState<SearchDocumentsResponse | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [ragQuestion, setRagQuestion] = useState("");
+  const [ragPreview, setRagPreview] = useState<RagPreviewApiResponse | null>(
+    null,
+  );
+  const [isAsking, setIsAsking] = useState(false);
 
   useEffect(() => {
     async function loadDocuments() {
@@ -101,6 +108,31 @@ export default function DocumentsPage() {
       );
     } finally {
       setDeletingDocumentId(null);
+    }
+  }
+
+  async function handleRagPreview(event: SyntheticEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    setError(null);
+    setRagPreview(null);
+    setIsAsking(true);
+
+    try {
+      const response = await previewRagAnswer({
+        question: ragQuestion,
+        limit: 5,
+      });
+
+      setRagPreview(response);
+    } catch (caughtError) {
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "RAG preview failed",
+      );
+    } finally {
+      setIsAsking(false);
     }
   }
 
@@ -172,6 +204,73 @@ export default function DocumentsPage() {
           validate the input, split it into chunks, and persist the document in
           PostgreSQL.
         </p>
+
+        <section className="mt-10 rounded-lg border border-slate-200 bg-white p-5">
+          <h2 className="text-xl font-semibold">Ask Knowledge Atlas</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Ask a question and see which document chunks would be used as
+            evidence.
+          </p>
+
+          <form onSubmit={handleRagPreview} className="mt-5 grid gap-3">
+            <textarea
+              value={ragQuestion}
+              onChange={(event) => setRagQuestion(event.target.value)}
+              className="min-h-28 rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-600"
+              placeholder="Example: How does RAG use vector databases?"
+            />
+            <button
+              type="submit"
+              disabled={isAsking}
+              className="w-fit rounded-lg bg-blue-700 px-5 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-400"
+            >
+              {isAsking ? "Finding evidence..." : "Ask question"}
+            </button>
+          </form>
+
+          {ragPreview ? (
+            <div className="mt-5 grid gap-4">
+              <article className="rounded-lg border border-blue-100 bg-blue-50 p-4">
+                <p className="text-sm font-semibold text-blue-900">
+                  Preview answer
+                </p>
+                <p className="mt-2 text-sm leading-6 text-blue-950">
+                  {ragPreview.answer}
+                </p>
+              </article>
+
+              <div className="grid gap-3">
+                <p className="text-sm font-semibold text-slate-800">Evidence</p>
+
+                {ragPreview.evidence.length === 0 ? (
+                  <p className="text-sm text-slate-600">
+                    No strong evidence was found for this question.
+                  </p>
+                ) : (
+                  ragPreview.evidence.map((chunk) => (
+                    <article
+                      key={chunk.id}
+                      className="rounded-lg border border-slate-200 bg-slate-50 p-4"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-sm font-medium text-slate-700">
+                          {chunk.documentTitle} · Chunk {chunk.index + 1}
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          Score {(chunk.score * 100).toFixed(1)}%
+                        </p>
+                      </div>
+
+                      <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-700">
+                        {chunk.text}
+                      </p>
+                    </article>
+                  ))
+                )}
+              </div>
+            </div>
+          ) : null}
+        </section>
 
         <section className="mt-10 rounded-lg border border-slate-200 bg-white p-5">
           <h2 className="text-xl font-semibold">Semantic search</h2>

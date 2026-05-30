@@ -1,6 +1,7 @@
 import type {
   ChunkRecord,
   DocumentRecord,
+  RagPreviewResponse,
   RetrievedChunk,
 } from "@knowledge-atlas/shared";
 
@@ -48,6 +49,14 @@ export type SearchDocumentsResponse = {
   query: string;
   results: RetrievedChunk[];
 };
+
+export type RagPreviewInput = {
+  question: string;
+  limit?: number;
+  minScore?: number;
+};
+
+export type RagPreviewApiResponse = RagPreviewResponse;
 
 type ApiErrorResponse = {
   error: string;
@@ -138,6 +147,39 @@ export async function searchDocuments(
       [...fieldMessages, ...formMessages].join(" ") ||
       errorBody.error ||
       `Search failed with status ${response.status}`;
+
+    throw new Error(message);
+  }
+
+  return response.json();
+}
+
+export async function previewRagAnswer(
+  input: RagPreviewInput,
+): Promise<RagPreviewApiResponse> {
+  const apiBaseUrl = getApiBaseUrl();
+
+  const response = await fetch(`${apiBaseUrl}/rag/preview`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(input),
+  });
+
+  if (!response.ok) {
+    const errorBody = (await response.json()) as ApiErrorResponse;
+
+    const fieldMessages = Object.values(errorBody.details?.fieldErrors ?? {})
+      .flat()
+      .filter(Boolean);
+
+    const formMessages = errorBody.details?.formErrors ?? [];
+
+    const message =
+      [...fieldMessages, ...formMessages].join(" ") ||
+      errorBody.error ||
+      `RAG preview failed with status ${response.status}`;
 
     throw new Error(message);
   }
