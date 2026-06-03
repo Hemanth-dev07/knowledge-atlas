@@ -4,7 +4,7 @@ This roadmap breaks the project into small learning milestones. The goal is to b
 
 Knowledge Atlas is becoming a personal AI research assistant where users can save documents, search their knowledge base semantically, chat with retrieved evidence, and later explore concepts through a knowledge graph.
 
-Current checkpoint as of 2026-05-30:
+Current checkpoint as of 2026-06-03:
 
 - Monorepo foundation is complete.
 - Backend and frontend foundations are complete.
@@ -14,8 +14,9 @@ Current checkpoint as of 2026-05-30:
 - New chunks receive local TypeScript-generated embeddings.
 - The API supports semantic chunk search.
 - The frontend has a working document page and semantic search UI.
-- The API has a first RAG preview endpoint that retrieves evidence for a question.
-- The frontend has an Ask Knowledge Atlas UI that displays a preview answer and evidence chunks.
+- The API has a RAG preview endpoint that retrieves evidence for a question.
+- The API can generate grounded answers with the configured answer-generation provider.
+- The frontend has an Ask Knowledge Atlas UI that displays generated answers and evidence chunks.
 - Learning notes are stored locally in `docs/Day*.md` and ignored by Git.
 
 ## Phase 1: Project Foundation
@@ -200,8 +201,6 @@ Remaining later:
 
 Goal: answer questions using retrieved evidence instead of guessing.
 
-Next likely milestone.
-
 Completed tasks:
 
 - Design a RAG request/response shape
@@ -209,28 +208,37 @@ Completed tasks:
 - Retrieve relevant chunks using semantic search
 - Return a preview answer plus evidence chunks
 - Add frontend RAG preview UI
+- Choose a free or free-tier JavaScript-friendly answer generation option
+- Add a provider-neutral `AnswerGenerator` interface
+- Add a Gemini-backed answer generation service
+- Use generic answer-generation environment variable names
+- Build a grounded context prompt from retrieved chunks
+- Generate an answer from retrieved context
+- Handle cases where retrieved context is weak or missing
+- Keep tests isolated with fake answer generation
+- Lazy-load the default answer generator so CI does not need provider secrets
 
 Remaining tasks:
 
-- Build a grounded context from retrieved chunks
-- Choose a free or free-tier JavaScript-friendly answer generation option
-- Generate an answer from retrieved context
-- Handle cases where retrieved context is weak or missing
+- Improve citation formatting and make evidence references easier to inspect
 - Add chat-style conversation flow
+- Persist chat sessions, messages, answers, and retrieved evidence
+- Add token budgeting for larger retrieved contexts
+- Add provider selection logic if we support more than Gemini later
 
-Status: first retrieval-preview slice completed. Real answer generation is still planned.
+Status: completed for the first real RAG answer-generation slice.
 
 Notes:
 
-- Retrieval is already working.
-- Generation is not implemented yet.
+- Retrieval and generation are both working.
+- The current UI is still a learning/scaffold interface, not the final chat product.
 - We should keep citations/evidence visible so the app does not feel like a black box.
 
 ## Phase 10: Authentication And User Ownership
 
 Goal: let users log in and ensure each user can access only their own data.
 
-Planned after the first basic RAG slice.
+Recommended as the next major milestone after the first working RAG slice.
 
 Reason:
 
@@ -345,9 +353,9 @@ Status: planned.
 
 Recommended immediate order:
 
-1. Decide the answer-generation approach using free/free-tier JavaScript-friendly tooling.
-2. Add a real answer-generation service.
-3. Build prompts that force answers to stay grounded in retrieved evidence.
-4. Return answer plus citations/evidence.
-5. Then begin authentication and user ownership.
+1. Plan the authentication and user ownership approach.
+2. Add user accounts and sessions.
+3. Add user ownership to documents and chunks.
+4. Filter document listing, retrieval, search, and RAG by the authenticated user.
+5. Then add chat persistence on top of the authenticated RAG flow.
 
