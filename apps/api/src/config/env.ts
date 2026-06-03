@@ -12,6 +12,9 @@ const answerGenerationProvider =
 const answerGenerationApiKey = process.env.ANSWER_GENERATION_API_KEY;
 const answerGenerationModel =
   process.env.ANSWER_GENERATION_MODEL ?? "gemini-3.5-flash";
+const betterAuthSecret = process.env.BETTER_AUTH_SECRET;
+const betterAuthUrl = process.env.BETTER_AUTH_URL ?? "http://localhost:4000";
+const webAppUrl = process.env.WEB_APP_URL ?? "http://localhost:3000";
 
 if (!databaseUrl) {
   throw new Error("DATABASE_URL is not configured");
@@ -23,4 +26,7 @@ export const env = {
   answerGenerationProvider,
   answerGenerationApiKey,
   answerGenerationModel,
+  betterAuthSecret,
+  betterAuthUrl,
+  webAppUrl,
 };
