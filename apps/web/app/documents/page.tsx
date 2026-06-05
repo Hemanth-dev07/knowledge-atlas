@@ -178,6 +178,8 @@ export default function DocumentsPage() {
         response.document,
         ...currentDocuments,
       ]);
+      setTitle("");
+      setText("");
     } catch (caughtError) {
       setError(
         caughtError instanceof Error
@@ -188,6 +190,7 @@ export default function DocumentsPage() {
       setIsSubmitting(false);
     }
   }
+
   return (
     <main className="min-h-screen bg-slate-50 px-6 py-10 text-slate-950">
       <section className="mx-auto max-w-5xl">
