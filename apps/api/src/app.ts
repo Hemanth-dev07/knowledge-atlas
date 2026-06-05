@@ -1,5 +1,6 @@
 import cors from "@fastify/cors";
 import fastify from "fastify";
+import { authRoutes } from "./routes/auth.routes.js";
 import { documentRoutes } from "./routes/documents.routes.js";
 import { healthRoutes } from "./routes/health.routes.js";
 import { rootRoutes } from "./routes/root.routes.js";
@@ -51,8 +52,10 @@ export async function buildApp(options: BuildAppOptions = {}) {
   });
 
   await app.register(cors, {
-    origin: true,
-    methods: ["GET", "HEAD", "POST", "DELETE"],
+    origin: process.env.WEB_APP_URL ?? "http://localhost:3000",
+    credentials: true,
+    methods: ["GET", "HEAD", "POST", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   });
 
   const documentStore =
@@ -68,6 +71,7 @@ export async function buildApp(options: BuildAppOptions = {}) {
       return defaultAnswerGenerator(input);
     });
 
+  await app.register(authRoutes);
   await app.register(rootRoutes);
   await app.register(healthRoutes);
   await app.register(documentRoutes, {

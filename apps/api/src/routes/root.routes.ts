@@ -6,6 +6,7 @@ export async function rootRoutes(app: FastifyInstance) {
       name: "Knowledge Atlas API",
       status: "running",
       routes: [
+        "/api/auth/*",
         "/health",
         "/documents",
         "/documents/:documentId",
